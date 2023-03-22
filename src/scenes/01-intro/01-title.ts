@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { colours } from '../../consts';
 import { getFullsizeBg, getScreenCenter } from '../../utils';
 
 export default class IntroTitle extends Phaser.Scene {
@@ -42,16 +43,14 @@ export default class IntroTitle extends Phaser.Scene {
     this.add
       .text(...screenCenter, 'FOCUS... BUT WHERE? ', {
         fontSize: '128px',
-        color: '#fff',
+        color: colours.white,
         fontFamily: 'RoadRage',
       })
       .setOrigin(0.5);
 
     // Fade out the scene on click
     this.input.once('pointerdown', () => {
-      // fade to black
-      // this.cameras.main.fadeOut(200, 0, 0, 0);
-      this.scene.start('intro-choice');
+      this.cameras.main.fadeOut(150, 234, 234, 234);
     });
 
     this.cameras.main.once(
