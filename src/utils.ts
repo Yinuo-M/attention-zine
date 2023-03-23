@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import dayjs from 'dayjs';
 
 // Resize the backgroud to just about cover the screen
 export const getFullsizeBg = (
@@ -29,10 +30,18 @@ export const getFullsizeBg = (
   return image;
 };
 
-export const getScreenCenter = (scene: Phaser.Scene): [number, number] => {
+// Get the x, y coordinate of the screen center
+export const getScreenCenter = (scene: Phaser.Scene) => {
   const screenCenterX =
     scene.cameras.main.worldView.x + scene.cameras.main.width / 2;
   const screenCenterY =
     scene.cameras.main.worldView.y + scene.cameras.main.height / 2;
-  return [screenCenterX, screenCenterY];
+  return { x: screenCenterX, y: screenCenterY };
+};
+
+export const getTimeOfDay = () => {
+  const hour = dayjs().hour();
+  if (hour >= 5 && hour < 12) return 'morning';
+  if (hour >= 12 && hour < 18) return 'afternoon';
+  return 'evening';
 };
