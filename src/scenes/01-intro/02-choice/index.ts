@@ -1,13 +1,21 @@
 import Phaser from 'phaser';
 import { getFullsizeBg } from '../../../utils';
 import { createChoice, loadChoice } from './choice';
-import { createExit, loadExit } from './exit';
+import { loadExit } from './exit';
+import { loadWelcome } from './welcome';
 
 // TODO
-// - button underline's skipped because it's not supported by Phaser. Need to add plugin
+// MUST
+// - Add continue button to welcome page
+
+// COULD
+// - Can't have text underline. Might be able to achieve with some difficulty
 // - eye animation skipped - waiting for simplification
+// - Can't do curved text. Might be able to achieve with some difficulty
+
+// CANT
 // - hanzipen font problem. The one I found online doesn't load properly
-// - Can't automatically close tab
+// - Can't automatically close tab. Definitely can't
 
 export default class IntroChoice extends Phaser.Scene {
   constructor() {
@@ -20,6 +28,7 @@ export default class IntroChoice extends Phaser.Scene {
     this.load.image('paper', 'assets/backgrounds/lined-paper/paper.png');
     loadChoice(this);
     loadExit(this);
+    loadWelcome(this);
   }
 
   create() {
@@ -34,7 +43,6 @@ export default class IntroChoice extends Phaser.Scene {
     );
     paper.setScale(0.25).setScrollFactor(0);
 
-    // createChoice(this);
-    createExit(this);
+    createChoice(this);
   }
 }

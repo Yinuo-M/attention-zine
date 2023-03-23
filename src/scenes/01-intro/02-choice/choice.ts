@@ -2,7 +2,9 @@ import Phaser from 'phaser';
 import dayjs from 'dayjs';
 
 import { colours } from '../../../consts';
-import { getFullsizeBg, getScreenCenter, getTimeOfDay } from '../../../utils';
+import { getScreenCenter, getTimeOfDay } from '../../../utils';
+import { createExit } from './exit';
+import { createWelcome } from './welcome';
 
 export const loadChoice = (scene: Phaser.Scene) => {
   // Eyes
@@ -13,7 +15,7 @@ export const loadChoice = (scene: Phaser.Scene) => {
 export const createChoice = (scene: Phaser.Scene) => {
   // Text
   const screenCenter = getScreenCenter(scene);
-  scene.add
+  const titleOne = scene.add
     .text(
       screenCenter.x,
       screenCenter.y - 210,
@@ -26,11 +28,11 @@ export const createChoice = (scene: Phaser.Scene) => {
     )
     .setOrigin(0.5, 0.5);
 
-  scene.add
+  const titleTwo = scene.add
     .text(
       screenCenter.x,
       screenCenter.y - 140,
-      'Is scene a good time for some distraction?',
+      'Is this a good time for some distraction?',
       {
         fontFamily: 'RoadRage',
         color: colours.black,
@@ -52,8 +54,8 @@ export const createChoice = (scene: Phaser.Scene) => {
   const noText = scene.add
     .text(
       screenCenter.x - 220,
-      screenCenter.y + 170,
-      ['No thanks, I was supposed to', 'focus on something else'],
+      screenCenter.y + 150,
+      ['', 'No thanks, I was supposed to', 'focus on something else'],
       {
         fontFamily: 'Hanzipen',
         color: colours.blue,
@@ -62,9 +64,6 @@ export const createChoice = (scene: Phaser.Scene) => {
       }
     )
     .setOrigin(0.5, 0.5);
-  noText.setInteractive().on('pointerdown', () => {
-    console.log('clicked text');
-  });
 
   const wideningEye = scene.add
     .image(screenCenter.x + 220, screenCenter.y + 50, 'widening-eye')
@@ -132,4 +131,29 @@ export const createChoice = (scene: Phaser.Scene) => {
       }
     )
     .setOrigin(0.5, 0.5);
+
+  const destroyAll = () => {
+    titleOne.destroy();
+    titleTwo.destroy();
+    rolledEye.destroy();
+    noText.destroy();
+    wideningEye.destroy();
+    yesText.destroy();
+  };
+
+  const goToExit = () => {
+    destroyAll();
+    createExit(scene);
+  };
+
+  const goToWelcome = () => {
+    destroyAll();
+    createWelcome(scene);
+  };
+
+  rolledEye.setInteractive().on('pointerdown', goToExit);
+  noText.setInteractive().on('pointerdown', goToExit);
+
+  wideningEye.setInteractive().on('pointerdown', goToWelcome);
+  yesText.setInteractive().on('pointerdown', goToWelcome);
 };
