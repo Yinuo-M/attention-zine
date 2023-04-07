@@ -47,6 +47,14 @@ export default class IntroTest extends Phaser.Scene {
   create() {
     const screenCenter = getScreenCenter(this);
 
+    // Set camera bounds
+    this.cameras.main.setBounds(
+      this.cameras.main.x,
+      this.cameras.main.y,
+      3600,
+      this.cameras.main.getBounds.length
+    );
+
     // Backgrounds
     this.backgrounds = this.physics.add.group({ allowGravity: false });
     const centerY = screenCenter.y;
@@ -63,14 +71,20 @@ export default class IntroTest extends Phaser.Scene {
     // Ground and edges
     const ground = this.physics.add.staticGroup();
     ground
-      .create(screenCenter.x, screenCenter.y + 200, 'ground')
+      .create(screenCenter.x, screenCenter.y + 300, 'ground')
       .setScale(20, 2)
       .setAlpha(0)
       .refreshBody();
 
     ground
       .create(0, screenCenter.y, 'ground')
-      .setScale(1, 500)
+      .setScale(0.9, 400)
+      .setAlpha(0)
+      .refreshBody();
+
+    ground
+      .create(3580,  screenCenter.y, 'ground')
+      .setScale(0.9, 400)
       .setAlpha(0)
       .refreshBody();
 
@@ -78,7 +92,7 @@ export default class IntroTest extends Phaser.Scene {
     this.add
       .text(
         screenCenter.x - 550,
-        screenCenter.y - 280,
+        screenCenter.y - 180,
         ['Are we really', 'the customer?'],
         {
           fontFamily: 'RoadRage',
@@ -93,7 +107,7 @@ export default class IntroTest extends Phaser.Scene {
     this.add
       .text(
         screenCenter.x - 110,
-        screenCenter.y - 105,
+        screenCenter.y - 5,
         [
           'Over the last two decades, internet',
           'and social media have blurred the',
@@ -113,7 +127,7 @@ export default class IntroTest extends Phaser.Scene {
     this.add
       .text(
         screenCenter.x + 750,
-        screenCenter.y - 155,
+        screenCenter.y - 55,
         [
           'And as information reaches over abundance,',
           'the competition for our limited attention intensifies.',
@@ -134,7 +148,7 @@ export default class IntroTest extends Phaser.Scene {
     this.add
       .text(
         screenCenter.x + 1600,
-        screenCenter.y - 280,
+        screenCenter.y - 180,
         ['It all began with seemingly ', 'innocuous advertising techniques...'],
         {
           fontFamily: 'Gaegu',
@@ -146,18 +160,18 @@ export default class IntroTest extends Phaser.Scene {
 
     // Doodle
     this.add
-      .image(screenCenter.x + 750, screenCenter.y + 80, 'doodle')
+      .image(screenCenter.x + 750, screenCenter.y + 200, 'doodle')
       .setScale(0.3);
 
     // Ad
     const ad = this.physics.add.staticImage(
       screenCenter.x + 2000,
-      screenCenter.y + 150,
+      screenCenter.y + 250,
       'ad'
     );
 
     // Avatar
-    this.avatar = this.physics.add.sprite(300, 500, 'avatar-walk').setFrame(4);
+    this.avatar = this.physics.add.sprite(300, 400, 'avatar-walk').setFrame(4);
     this.avatar.setBounce(0.3);
     const resetJump = () => (this.isJumping = false);
     this.physics.add.collider(this.avatar, ground, resetJump);
