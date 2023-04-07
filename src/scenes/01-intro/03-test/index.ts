@@ -2,6 +2,15 @@ import Phaser from 'phaser';
 import { colours } from '../../../consts';
 import { getScreenCenter } from '../../../utils';
 
+// TODO
+// MUST
+// - Make the jump box tigher and more rectangular
+
+// COULD
+// - Turning
+// - Refactor common functions out (especially sprite related)
+
+
 export default class IntroTest extends Phaser.Scene {
   avatar: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | null;
   facingDirection: 'front' | 'left' | 'right' = 'front';

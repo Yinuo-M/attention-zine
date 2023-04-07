@@ -7,6 +7,7 @@ import { loadWelcome } from './welcome';
 // TODO
 // MUST
 // - Add continue button to welcome page
+// - Change fonts
 
 // COULD
 // - Make the shake animation gentler
