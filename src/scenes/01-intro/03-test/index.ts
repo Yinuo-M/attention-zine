@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import { colours } from '../../../consts';
+import { getScreenCenter } from '../../../utils';
 
 export default class IntroTest extends Phaser.Scene {
   avatar: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | null;
@@ -39,9 +41,11 @@ export default class IntroTest extends Phaser.Scene {
   }
 
   create() {
+    const screenCenter = getScreenCenter(this);
+
     // Backgrounds
     this.backgrounds = this.physics.add.group({ allowGravity: false });
-    const centerY = this.cameras.main.height / 2;
+    const centerY = screenCenter.y;
     const blackBg = this.backgrounds
       .create(0, centerY, 'black-bg')
       .setOrigin(0, 0.5);
@@ -49,32 +53,62 @@ export default class IntroTest extends Phaser.Scene {
     blackBg.setScale(blackBgScaleY).setScrollFactor(1, 0);
     this.paper = this.backgrounds.create(0, centerY, 'paper').setOrigin(0, 0.5);
     if (this.paper) {
-      const paperScaleY = window.innerHeight / this.paper?.height;
+      const paperScaleY = (window.innerHeight + 80) / this.paper?.height;
       this.paper.setScale(paperScaleY).setScrollFactor(1, 0);
     }
 
     // Ground and edges
     const ground = this.physics.add.staticGroup();
     ground
-      .create(
-        this.cameras.main.width / 2,
-        this.cameras.main.height / 2 + 283,
-        'ground'
-      )
+      .create(screenCenter.x, screenCenter.y + 283, 'ground')
       .setScale(20, 2)
       .setAlpha(0)
       .refreshBody();
 
     ground
-      .create(0, this.cameras.main.height / 2, 'ground')
+      .create(0, screenCenter.y, 'ground')
       .setScale(1, 500)
       .setAlpha(0)
       .refreshBody();
 
+    // Text
+    this.add
+      .text(
+        screenCenter.x - 550,
+        screenCenter.y - 180,
+        ['Are we really', 'the customer?'],
+        {
+          fontFamily: 'RoadRage',
+          color: colours.blue,
+          fontSize: '64px',
+        }
+      )
+      .setRotation(-0.15)
+      .setAlpha(0.9)
+      .setOrigin(0.5, 0.5);
+
+    this.add
+      .text(
+        screenCenter.x - 110,
+        screenCenter.y - 5,
+        [
+          'Over the last two decades, internet',
+          'and social media have blurred the',
+          'lines between personal and mass',
+          'communication, making it easy for',
+          'anyone to create and share content',
+          'with a global audience. ',
+        ],
+        {
+          fontFamily: 'Gaegu',
+          color: colours.black,
+          fontSize: '35px',
+        }
+      )
+      .setOrigin(0.5, 0.5);
+
     // Avatar
-    this.avatar = this.physics.add
-      .sprite(this.cameras.main.width / 2, 0, 'avatar-walk')
-      .setFrame(4);
+    this.avatar = this.physics.add.sprite(300, 0, 'avatar-walk').setFrame(4);
     this.avatar.setBounce(0.2);
     const resetJump = () => (this.isJumping = false);
     this.physics.add.collider(this.avatar, ground, resetJump);
