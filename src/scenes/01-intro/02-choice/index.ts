@@ -9,6 +9,7 @@ import { loadWelcome } from './welcome';
 // - Add continue button to welcome page
 
 // COULD
+// - Make the shake animation gentler
 // - Can't have text underline. Might be able to achieve with some difficulty
 // - eye animation skipped - waiting for simplification
 // - Can't do curved text. Might be able to achieve with some difficulty
