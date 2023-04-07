@@ -5,18 +5,25 @@ export default class IntroTest extends Phaser.Scene {
   avatar: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | null;
   facingDirection: 'front' | 'left' | 'right' = 'front';
   isJumping: boolean;
+  backgrounds: Phaser.Physics.Arcade.Group | null;
+  paper: Phaser.GameObjects.Image | null;
 
   constructor() {
     super('intro-test');
     this.avatar = null;
     this.facingDirection = 'front';
     this.isJumping = false;
+    this.backgrounds = null;
+    this.paper = null;
   }
 
   preload() {
     // Backgrounds
-    this.load.image('white-bg', 'assets/backgrounds/lined-paper/off-white.png');
-    this.load.image('paper', 'assets/backgrounds/lined-paper/paper.png');
+    this.load.image(
+      'black-bg',
+      'assets/backgrounds/platform/black-background.jpg'
+    );
+    this.load.image('paper', 'assets/backgrounds/platform/papers.png');
 
     // Temp ground
     this.load.image('ground', 'assets/misc/platform.png');
@@ -34,27 +41,39 @@ export default class IntroTest extends Phaser.Scene {
 
   create() {
     // Backgrounds
-    getFullsizeBg('white-bg', this);
-    const paper = this.add.image(
-      this.cameras.main.width / 2,
-      this.cameras.main.height / 2,
-      'paper'
-    );
-    paper.setScale(0.25).setScrollFactor(0);
+    this.backgrounds = this.physics.add.group({ allowGravity: false });
+    const centerY = this.cameras.main.height / 2;
+    const blackBg = this.backgrounds
+      .create(0, centerY, 'black-bg')
+      .setOrigin(0, 0.5);
+    const blackBgScaleY = (window.innerHeight * 1.5) / blackBg.height;
+    blackBg.setScale(blackBgScaleY).setScrollFactor(0);
+    this.paper = this.backgrounds.create(0, centerY, 'paper').setOrigin(0, 0.5);
+    if (this.paper) {
+      const paperScaleY = window.innerHeight / this.paper?.height;
+      this.paper.setScale(paperScaleY).setScrollFactor(0);
+    }
 
     //Temp ground
-    const ground = this.physics.add.staticImage(400, 1000, 'ground');
+    const ground = this.physics.add.staticGroup();
+    ground
+      .create(
+        this.cameras.main.width / 2,
+        this.cameras.main.height / 2 + 283,
+        'ground'
+      )
+      .setScale(20, 2)
+      .setAlpha(0)
+      .refreshBody();
 
     // Avatar
-    this.avatar = this.physics.add
-      .sprite(this.cameras.main.width / 2, 0, 'avatar-walk')
-      .setFrame(4);
-    this.avatar.setBounce(0.1);
+    this.avatar = this.physics.add.sprite(180, 0, 'avatar-walk').setFrame(4);
+    this.avatar.setBounce(0.2);
     this.avatar.setCollideWorldBounds(true);
     const resetJump = () => (this.isJumping = false);
     this.physics.add.collider(this.avatar, ground, resetJump);
 
-    //Keyboard control
+    // Keyboard control
     this.anims.create({
       key: 'left',
       frames: this.anims.generateFrameNumbers('avatar-walk', {
@@ -108,29 +127,30 @@ export default class IntroTest extends Phaser.Scene {
       Phaser.Input.Keyboard.KeyCodes.SPACE
     );
 
-    if (this.avatar) {
-      if (cursors.left.isDown) {
-        this.avatar?.setVelocityX(-180);
-        this.avatar?.anims.play('left', true);
-        this.facingDirection = 'left';
-      } else if (cursors.right.isDown) {
-        this.avatar?.setVelocityX(180);
-        this.avatar?.anims.play('right', true);
-        this.facingDirection = 'right';
-      } else {
-        this.avatar.setVelocityX(0);
-        if (this.facingDirection !== 'front') {
-          this.avatar.anims.play('blink', true);
-          this.facingDirection = 'front';
-        }
+    if (cursors.left.isDown) {
+      this.backgrounds?.setVelocityX(500);
+      this.avatar?.setVelocityX(-100);
+      this.avatar?.anims.play('left', true);
+      this.facingDirection = 'left';
+    } else if (cursors.right.isDown) {
+      this.backgrounds?.setVelocityX(-500);
+      this.avatar?.setVelocityX(180);
+      this.avatar?.anims.play('right', true);
+      this.facingDirection = 'right';
+    } else {
+      this.backgrounds?.setVelocityX(0);
+      this.avatar?.setVelocityX(0);
+      if (this.facingDirection !== 'front') {
+        this.avatar?.anims.play('blink', true);
+        this.facingDirection = 'front';
       }
+    }
 
-      if (spaceBar.isDown && this.avatar?.body.touching.down) {
-        this.avatar.setVelocityY(-250);
-        if (!this.isJumping) {
-          this.avatar.anims.play('jump', true);
-          this.isJumping = true;
-        }
+    if (spaceBar.isDown && this.avatar?.body.touching.down) {
+      this.avatar.setVelocityY(-600);
+      if (!this.isJumping && this.facingDirection === 'front') {
+        this.avatar.anims.play('jump', true);
+        this.isJumping = true;
       }
     }
   }
