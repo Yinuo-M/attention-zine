@@ -4,10 +4,13 @@ import { getFullsizeBg } from '../../../utils';
 export default class IntroTest extends Phaser.Scene {
   avatar: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | null;
   facingDirection: 'front' | 'left' | 'right' = 'front';
+  isJumping: boolean;
+
   constructor() {
     super('intro-test');
     this.avatar = null;
     this.facingDirection = 'front';
+    this.isJumping = false;
   }
 
   preload() {
@@ -19,7 +22,11 @@ export default class IntroTest extends Phaser.Scene {
     this.load.image('ground', 'assets/misc/platform.png');
 
     // Avatar
-    this.load.spritesheet('avatar', 'assets/sprites/walk.png', {
+    this.load.spritesheet('avatar-walk', 'assets/sprites/walk.png', {
+      frameWidth: 220,
+      frameHeight: 283,
+    });
+    this.load.spritesheet('avatar-jump', 'assets/sprites/jump.png', {
       frameWidth: 220,
       frameHeight: 283,
     });
@@ -36,46 +43,61 @@ export default class IntroTest extends Phaser.Scene {
     paper.setScale(0.25).setScrollFactor(0);
 
     //Temp ground
-    const ground = this.physics.add
-      .staticImage(400, 1000, 'ground')
-      .setScale(10, 2);
+    const ground = this.physics.add.staticImage(400, 1000, 'ground');
 
     // Avatar
-    this.avatar = this.physics.add.sprite(
-      this.cameras.main.width / 2,
-      0,
-      'avatar'
-    );
-    this.avatar.setBounce(0.2);
+    this.avatar = this.physics.add
+      .sprite(this.cameras.main.width / 2, 0, 'avatar-walk')
+      .setFrame(4);
+    this.avatar.setBounce(0.1);
     this.avatar.setCollideWorldBounds(true);
-    this.physics.add.collider(this.avatar, ground);
+    const resetJump = () => (this.isJumping = false);
+    this.physics.add.collider(this.avatar, ground, resetJump);
 
     //Keyboard control
     this.anims.create({
       key: 'left',
-      frames: this.anims.generateFrameNumbers('avatar', { start: 0, end: 3 }),
+      frames: this.anims.generateFrameNumbers('avatar-walk', {
+        start: 0,
+        end: 3,
+      }),
       frameRate: 8,
       repeat: -1,
     });
 
     this.anims.create({
       key: 'right',
-      frames: this.anims.generateFrameNumbers('avatar', { start: 9, end: 12 }),
+      frames: this.anims.generateFrameNumbers('avatar-walk', {
+        start: 9,
+        end: 12,
+      }),
       frameRate: 8,
       repeat: -1,
     });
 
     this.anims.create({
-      key: 'turn',
-      frames: this.anims.generateFrameNumbers('avatar', { start: 4, end: 8 }),
+      key: 'blink',
+      frames: this.anims.generateFrameNumbers('avatar-walk', {
+        start: 4,
+        end: 8,
+      }),
       frameRate: 8,
     });
 
-    this.avatar.play('turn', true);
+    this.anims.create({
+      key: 'jump',
+      frames: this.anims.generateFrameNumbers('avatar-jump', {
+        start: 1,
+        end: 2,
+      }),
+      frameRate: 8,
+    });
 
+    // Eye blink on load, and every 5 seconds
+    this.avatar.play('blink', true);
     setInterval(() => {
       if (this.facingDirection === 'front') {
-        this.avatar?.anims.play('turn', true);
+        this.avatar?.anims.play('blink', true);
       }
     }, 5000);
   }
@@ -98,16 +120,17 @@ export default class IntroTest extends Phaser.Scene {
       } else {
         this.avatar.setVelocityX(0);
         if (this.facingDirection !== 'front') {
-          this.avatar.anims.play('turn', true);
+          this.avatar.anims.play('blink', true);
           this.facingDirection = 'front';
         }
       }
 
-      if (
-        (spaceBar.isDown || cursors.up.isDown) &&
-        this.avatar.body.touching.down
-      ) {
-        this.avatar.setVelocityY(-330);
+      if (spaceBar.isDown && this.avatar?.body.touching.down) {
+        this.avatar.setVelocityY(-250);
+        if (!this.isJumping) {
+          this.avatar.anims.play('jump', true);
+          this.isJumping = true;
+        }
       }
     }
   }
