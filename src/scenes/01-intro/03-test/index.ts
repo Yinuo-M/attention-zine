@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { getFullsizeBg } from '../../../utils';
 
 export default class IntroTest extends Phaser.Scene {
   avatar: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | null;
@@ -47,14 +46,14 @@ export default class IntroTest extends Phaser.Scene {
       .create(0, centerY, 'black-bg')
       .setOrigin(0, 0.5);
     const blackBgScaleY = (window.innerHeight * 1.5) / blackBg.height;
-    blackBg.setScale(blackBgScaleY).setScrollFactor(0);
+    blackBg.setScale(blackBgScaleY).setScrollFactor(1, 0);
     this.paper = this.backgrounds.create(0, centerY, 'paper').setOrigin(0, 0.5);
     if (this.paper) {
       const paperScaleY = window.innerHeight / this.paper?.height;
-      this.paper.setScale(paperScaleY).setScrollFactor(0);
+      this.paper.setScale(paperScaleY).setScrollFactor(1, 0);
     }
 
-    //Temp ground
+    // Ground and edges
     const ground = this.physics.add.staticGroup();
     ground
       .create(
@@ -66,10 +65,17 @@ export default class IntroTest extends Phaser.Scene {
       .setAlpha(0)
       .refreshBody();
 
+    ground
+      .create(0, this.cameras.main.height / 2, 'ground')
+      .setScale(1, 500)
+      .setAlpha(0)
+      .refreshBody();
+
     // Avatar
-    this.avatar = this.physics.add.sprite(180, 0, 'avatar-walk').setFrame(4);
+    this.avatar = this.physics.add
+      .sprite(this.cameras.main.width / 2, 0, 'avatar-walk')
+      .setFrame(4);
     this.avatar.setBounce(0.2);
-    this.avatar.setCollideWorldBounds(true);
     const resetJump = () => (this.isJumping = false);
     this.physics.add.collider(this.avatar, ground, resetJump);
 
@@ -128,17 +134,25 @@ export default class IntroTest extends Phaser.Scene {
     );
 
     if (cursors.left.isDown) {
-      this.backgrounds?.setVelocityX(500);
-      this.avatar?.setVelocityX(-100);
+      // Note that the change in scrollX need to keep in scale with X velocaity, e.g. 4 for 240, 3 for 180
+      if (this.cameras.main.scrollX > 0) {
+        this.cameras.main.setScroll(
+          this.cameras.main.scrollX - 5,
+          this.cameras.main.scrollY
+        );
+      }
+      this.avatar?.setVelocityX(-300);
       this.avatar?.anims.play('left', true);
       this.facingDirection = 'left';
     } else if (cursors.right.isDown) {
-      this.backgrounds?.setVelocityX(-500);
-      this.avatar?.setVelocityX(180);
+      this.cameras.main.setScroll(
+        this.cameras.main.scrollX + 5,
+        this.cameras.main.scrollY
+      );
+      this.avatar?.setVelocityX(300);
       this.avatar?.anims.play('right', true);
       this.facingDirection = 'right';
     } else {
-      this.backgrounds?.setVelocityX(0);
       this.avatar?.setVelocityX(0);
       if (this.facingDirection !== 'front') {
         this.avatar?.anims.play('blink', true);
