@@ -16,4 +16,11 @@ export default {
       { key: 'rex-shake', plugin: RexShake, start: false, mapping: 'shake' },
     ],
   },
+  physics: {
+    default: 'arcade',
+    arcade: {
+      gravity: { y: 300 },
+      debug: false,
+    },
+  },
 };
